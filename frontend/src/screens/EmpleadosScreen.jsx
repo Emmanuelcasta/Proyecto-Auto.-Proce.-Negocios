@@ -40,7 +40,7 @@ export default function EmpleadosScreen() {
 
   const filtered = empleados.filter(e =>
     !search || e.nombre?.toLowerCase().includes(search.toLowerCase()) ||
-    e.numero_documento?.includes(search)
+    e.documento?.includes(search)
   );
 
   function openNew() {
@@ -170,7 +170,7 @@ export default function EmpleadosScreen() {
         footer={
           <>
             <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving || !form.nombre || !form.numero_documento}>
+            <Button onClick={handleSave} disabled={saving || !form.nombre || !form.documento}>
               {saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear empleado'}
             </Button>
           </>
