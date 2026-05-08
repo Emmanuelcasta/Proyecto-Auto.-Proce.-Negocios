@@ -9,6 +9,7 @@ import MarcacionesScreen from './screens/MarcacionesScreen';
 import NominaListScreen from './screens/NominaListScreen';
 import LiquidacionScreen from './screens/LiquidacionScreen';
 import ReportesScreen from './screens/ReportesScreen';
+import MiNominaScreen from './screens/MiNominaScreen';
 import { logout } from './lib/api';
 
 function RequireAuth() {
@@ -29,7 +30,7 @@ function AppLayout() {
 
   return (
     <div style={{ display: 'flex', height: '100%' }}>
-      <Sidebar onLogout={handleLogout} />
+      <Sidebar onLogout={handleLogout} role={userRole} />
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', background: '#F7F8FA', overflow: 'hidden' }}>
         <Topbar user={userEmail} role={userRole} />
         <div style={{
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/nomina"       element={<NominaListScreen />} />
             <Route path="/nomina/liquidacion" element={<LiquidacionScreen />} />
             <Route path="/reportes"     element={<ReportesScreen />} />
+            <Route path="/mi-nomina"    element={<MiNominaScreen />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

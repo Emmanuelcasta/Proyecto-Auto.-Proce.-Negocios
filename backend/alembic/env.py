@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Importar Base y todos los modelos (para autogenerate)
 from app.database import Base
-from app.models import Usuario, Empleado, Configuracion  # noqa: F401
+from app.models import *  # noqa: F401, F403
 
 # Alembic Config object
 config = context.config

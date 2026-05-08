@@ -81,12 +81,17 @@ app.add_exception_handler(Exception, generic_exception_handler)  # type: ignore
 
 
 # ── Routers ────────────────────────────────────────────────────────
-from app.routers import auth, empleados, configuracion, health  # noqa: E402
+from app.routers import auth, empleados, configuracion, health, marcaciones, turnos, nomina, reportes, me  # noqa: E402
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(empleados.router, prefix="/api/v1")
 app.include_router(configuracion.router, prefix="/api/v1")
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(marcaciones.router, prefix="/api/v1")
+app.include_router(turnos.router, prefix="/api/v1")
+app.include_router(nomina.router, prefix="/api/v1")
+app.include_router(reportes.router, prefix="/api/v1")
+app.include_router(me.router, prefix="/api/v1")
 
 
 # ── Root endpoint ─────────────────────────────────────────────────

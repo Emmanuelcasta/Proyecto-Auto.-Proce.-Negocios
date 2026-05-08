@@ -1,4 +1,4 @@
-const BASE = '/api/v1';
+const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1';
 
 function getToken() {
   return localStorage.getItem('access_token');
@@ -91,4 +91,47 @@ export function getConfiguracion() {
 
 export function updateConfiguracion(data) {
   return request('PUT', '/configuracion', data);
+}
+
+// Reportes
+export function getReportePilaUrl(periodo) {
+  const token = localStorage.getItem('access_token');
+  // Hack for downloading files with auth
+  return `${BASE}/reportes/pila?periodo=${periodo}&token=${token}`; // Usually needs a different approach or just fetch and createObjectURL
+}
+
+export async function downloadPila(periodo) {
+  const token = localStorage.getItem('access_token');
+  const res = await fetch(`${BASE}/reportes/pila?periodo=${periodo}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error('Error al generar PILA');
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `PILA_${periodo}.xlsx`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
+export function getResumenMes(year, month) {
+  return request('GET', `/reportes/resumen-mes?year=${year}&month=${month}`);
+}
+
+export function getHorasExtra(fecha_inicio, fecha_fin) {
+  return request('GET', `/reportes/horas-extra?fecha_inicio=${fecha_inicio}&fecha_fin=${fecha_fin}`);
+}
+
+// Empleado self-service
+export function getMiNomina() {
+  return request('GET', '/mi-nomina');
+}
+
+export function getMiNominaDetalle(id) {
+  return request('GET', `/mi-nomina/${id}`);
+}
+
+export function getMiMarcaciones() {
+  return request('GET', '/mi-marcaciones');
 }

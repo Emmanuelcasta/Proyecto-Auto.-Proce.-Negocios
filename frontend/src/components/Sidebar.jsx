@@ -2,19 +2,22 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Icon from './Icon';
 
 const NAV_ITEMS = [
-  { key: 'dashboard',   label: 'Dashboard',   icon: 'dashboard',  path: '/dashboard' },
-  { key: 'empleados',   label: 'Empleados',   icon: 'users',      path: '/empleados' },
-  { key: 'turnos',      label: 'Turnos',      icon: 'calendar',   path: '/turnos' },
-  { key: 'marcaciones', label: 'Marcaciones', icon: 'clock',      path: '/marcaciones' },
-  { key: 'nomina',      label: 'Nómina',      icon: 'file',       path: '/nomina' },
-  { key: 'reportes',    label: 'Reportes',    icon: 'chart',      path: '/reportes' },
+  { key: 'dashboard',   label: 'Dashboard',   icon: 'dashboard',  path: '/dashboard', roles: ['ADMIN', 'CONTADOR'] },
+  { key: 'empleados',   label: 'Empleados',   icon: 'users',      path: '/empleados', roles: ['ADMIN', 'CONTADOR'] },
+  { key: 'turnos',      label: 'Turnos',      icon: 'calendar',   path: '/turnos',    roles: ['ADMIN', 'CONTADOR'] },
+  { key: 'marcaciones', label: 'Marcaciones', icon: 'clock',      path: '/marcaciones', roles: ['ADMIN', 'CONTADOR'] },
+  { key: 'nomina',      label: 'Nómina',      icon: 'file',       path: '/nomina',      roles: ['ADMIN', 'CONTADOR'] },
+  { key: 'mi-nomina',   label: 'Mi Nómina',   icon: 'file',       path: '/mi-nomina',   roles: ['EMPLEADO', 'ADMIN'] },
+  { key: 'reportes',    label: 'Reportes',    icon: 'chart',      path: '/reportes',    roles: ['ADMIN', 'CONTADOR'] },
 ];
 
-export default function Sidebar({ onLogout }) {
+export default function Sidebar({ onLogout, role }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const isActive = (path) => pathname.startsWith(path);
+
+  const filteredItems = NAV_ITEMS.filter(item => !item.roles || item.roles.includes(role));
 
   return (
     <aside style={{
@@ -33,7 +36,7 @@ export default function Sidebar({ onLogout }) {
         </div>
       </div>
 
-      {NAV_ITEMS.map(item => (
+      {filteredItems.map(item => (
         <a
           key={item.key}
           onClick={() => navigate(item.path)}
