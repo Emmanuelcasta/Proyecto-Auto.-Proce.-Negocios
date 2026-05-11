@@ -21,6 +21,8 @@ class DetalleNominaResponse(BaseModel):
     porcentaje: Decimal | None = None
     valor: Decimal
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class NominaResponse(BaseModel):
     id: int

@@ -123,6 +123,68 @@ export function getHorasExtra(fecha_inicio, fecha_fin) {
   return request('GET', `/reportes/horas-extra?fecha_inicio=${fecha_inicio}&fecha_fin=${fecha_fin}`);
 }
 
+// Marcaciones
+export function getMarcaciones(params = {}) {
+  const q = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== '')
+  ).toString();
+  return request('GET', `/marcaciones${q ? '?' + q : ''}`);
+}
+
+export function corregirMarcacion(data) {
+  return request('POST', '/marcaciones/correccion', data);
+}
+
+// Turnos
+export function getCicloActivo() {
+  return request('GET', '/turnos/ciclo');
+}
+
+export function crearCiclo(data) {
+  return request('POST', '/turnos/ciclo', data);
+}
+
+export function getTurnosSemana(fecha) {
+  return request('GET', `/turnos/semana?fecha=${fecha}`);
+}
+
+// Nómina
+export function historialNomina(empleado_id = null) {
+  const q = empleado_id ? `?empleado_id=${empleado_id}` : '';
+  return request('GET', `/nomina/historial${q}`);
+}
+
+export function liquidarQuincena(data) {
+  return request('POST', '/nomina/liquidar', data);
+}
+
+export function getNomina(id) {
+  return request('GET', `/nomina/${id}`);
+}
+
+export function aprobarNomina(id) {
+  return request('PUT', `/nomina/${id}/aprobar`);
+}
+
+export function marcarNominaPagada(id) {
+  return request('PUT', `/nomina/${id}/marcar-pagado`);
+}
+
+export async function downloadComprobante(id) {
+  const token = localStorage.getItem('access_token');
+  const res = await fetch(`${BASE}/nomina/${id}/comprobante`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Error al generar comprobante');
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `comprobante_nomina_${id}.docx`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
 // Empleado self-service
 export function getMiNomina() {
   return request('GET', '/mi-nomina');

@@ -181,12 +181,12 @@ async def liquidar_quincena_base(
 
     aportes = calcular_aportes_empleador(salario_base)
     aportes_detalle = [
-        ("Salud empleador", "EMPLEADOR", None, Decimal("0.085"), aportes["salud_empleador"]),
-        ("Pensión empleador", "EMPLEADOR", None, Decimal("0.12"), aportes["pension_empleador"]),
-        ("ARL", "EMPLEADOR", None, None, aportes["arl"]),
-        ("Caja compensación", "EMPLEADOR", None, Decimal("0.04"), aportes["caja_compensacion"]),
-        ("SENA", "EMPLEADOR", None, Decimal("0.02"), aportes["sena"]),
-        ("ICBF", "EMPLEADOR", None, Decimal("0.03"), aportes["icbf"]),
+        ("Salud empleador", "APORTE_EMPLEADOR", None, Decimal("0.085"), aportes["salud_empleador"]),
+        ("Pensión empleador", "APORTE_EMPLEADOR", None, Decimal("0.12"), aportes["pension_empleador"]),
+        ("ARL", "APORTE_EMPLEADOR", None, None, aportes["arl"]),
+        ("Caja compensación", "APORTE_EMPLEADOR", None, Decimal("0.04"), aportes["caja_compensacion"]),
+        ("SENA", "APORTE_EMPLEADOR", None, Decimal("0.02"), aportes["sena"]),
+        ("ICBF", "APORTE_EMPLEADOR", None, Decimal("0.03"), aportes["icbf"]),
     ]
 
     total_devengado = sum((x[4] for x in devengados), Decimal("0.00")).quantize(Decimal("0.01"))
@@ -221,12 +221,13 @@ async def liquidar_quincena_base(
         db.add(detalle)
 
     await db.flush()
-    await db.refresh(nomina)
-    return nomina
+    # Re-consultar para cargar detalles via selectin
+    result = await db.execute(select(Nomina).where(Nomina.id == nomina.id))
+    return result.scalar_one()
 
 
-async def obtener_nomina_por_id(db: AsyncSession, nomina_id: int) -> Nomina:
-    """Obtiene una nómina por id."""
+async def _obtener_nomina(db: AsyncSession, nomina_id: int) -> Nomina:
+    """Carga una nómina por id con detalles via selectin."""
     result = await db.execute(select(Nomina).where(Nomina.id == nomina_id))
     nomina = result.scalar_one_or_none()
     if not nomina:
@@ -234,9 +235,14 @@ async def obtener_nomina_por_id(db: AsyncSession, nomina_id: int) -> Nomina:
     return nomina
 
 
+async def obtener_nomina_por_id(db: AsyncSession, nomina_id: int) -> Nomina:
+    """Obtiene una nómina por id."""
+    return await _obtener_nomina(db, nomina_id)
+
+
 async def aprobar_nomina(db: AsyncSession, nomina_id: int, usuario_id: int) -> Nomina:
     """Aprueba una nómina en estado BORRADOR."""
-    nomina = await obtener_nomina_por_id(db, nomina_id)
+    nomina = await _obtener_nomina(db, nomina_id)
     if nomina.estado != "BORRADOR":
         raise SysClockException(
             f"La nómina {nomina_id} no está en BORRADOR (estado actual: {nomina.estado}).",
@@ -246,13 +252,13 @@ async def aprobar_nomina(db: AsyncSession, nomina_id: int, usuario_id: int) -> N
     nomina.aprobado_por = usuario_id
     nomina.aprobado_en = datetime.now(timezone.utc)
     await db.flush()
-    await db.refresh(nomina)
-    return nomina
+    result = await db.execute(select(Nomina).where(Nomina.id == nomina.id))
+    return result.scalar_one()
 
 
 async def marcar_nomina_pagada(db: AsyncSession, nomina_id: int) -> Nomina:
     """Marca una nómina aprobada como pagada."""
-    nomina = await obtener_nomina_por_id(db, nomina_id)
+    nomina = await _obtener_nomina(db, nomina_id)
     if nomina.estado != "APROBADO":
         raise SysClockException(
             f"La nómina {nomina_id} debe estar APROBADO para marcarse como PAGADO (actual: {nomina.estado}).",
@@ -260,8 +266,8 @@ async def marcar_nomina_pagada(db: AsyncSession, nomina_id: int) -> Nomina:
         )
     nomina.estado = "PAGADO"
     await db.flush()
-    await db.refresh(nomina)
-    return nomina
+    result = await db.execute(select(Nomina).where(Nomina.id == nomina.id))
+    return result.scalar_one()
 
 
 async def historial_nomina(db: AsyncSession, empleado_id: int | None = None) -> list[Nomina]:

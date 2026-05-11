@@ -41,7 +41,7 @@ class Nomina(Base):
     )
 
     empleado = relationship("Empleado", lazy="selectin")
-    detalles = relationship("DetalleNomina", back_populates="nomina", cascade="all, delete-orphan")
+    detalles = relationship("DetalleNomina", back_populates="nomina", cascade="all, delete-orphan", lazy="selectin")
 
     def __repr__(self) -> str:
         return f"<Nomina(id={self.id}, empleado_id={self.empleado_id}, periodo={self.fecha_inicio}..{self.fecha_fin})>"

@@ -245,4 +245,7 @@ async def crear_ciclo(
         f"A={data.empleado_a_id}, B={data.empleado_b_id}, C={data.empleado_c_id}"
     )
 
-    return nuevo
+    # Re-consultar para cargar las relaciones selectin (empleado_a/b/c)
+    stmt = select(CicloRotacion).where(CicloRotacion.id == nuevo.id)
+    result = await db.execute(stmt)
+    return result.scalars().first()
