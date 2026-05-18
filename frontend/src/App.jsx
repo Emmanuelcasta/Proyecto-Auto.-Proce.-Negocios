@@ -10,6 +10,7 @@ import NominaListScreen from './screens/NominaListScreen';
 import LiquidacionScreen from './screens/LiquidacionScreen';
 import ReportesScreen from './screens/ReportesScreen';
 import MiNominaScreen from './screens/MiNominaScreen';
+import ConfiguracionScreen from './screens/ConfiguracionScreen';
 import { logout } from './lib/api';
 
 function RequireAuth() {
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/nomina/liquidacion" element={<LiquidacionScreen />} />
             <Route path="/reportes"     element={<ReportesScreen />} />
             <Route path="/mi-nomina"    element={<MiNominaScreen />} />
+            <Route path="/configuracion" element={<ConfiguracionScreen />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

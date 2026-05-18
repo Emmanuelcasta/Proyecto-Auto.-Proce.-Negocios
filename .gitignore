@@ -1,25 +1,25 @@
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-.env
-.pytest_cache/
-*.db
-*.sqlite3
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.venv/
+**/.pytest_cache/
+**/*.db
+**/*.sqlite3
 
-# Node
-node_modules/
-dist/
-.DS_Store
+# Node/Vite
+**/node_modules/
+**/dist/
+**/.DS_Store
 
 # IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
 
 # Project specific
+**/.env
 backend/.env
 frontend/.env
 backend/app/static/

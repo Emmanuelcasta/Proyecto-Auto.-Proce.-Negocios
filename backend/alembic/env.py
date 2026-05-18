@@ -6,7 +6,16 @@ Soporta autogenerate para detectar cambios en los modelos automáticamente.
 import asyncio
 import os
 import sys
+import socket
 from logging.config import fileConfig
+
+# Monkeypatch socket.getaddrinfo para forzar IPv4 y evitar bugs de DNS IPv6 en Windows
+orig_getaddrinfo = socket.getaddrinfo
+def patched_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    if family == socket.AF_UNSPEC:
+        family = socket.AF_INET
+    return orig_getaddrinfo(host, port, family, type, proto, flags)
+socket.getaddrinfo = patched_getaddrinfo
 
 from dotenv import load_dotenv
 load_dotenv()  # Carga el .env antes de leer DATABASE_URL
@@ -73,7 +82,13 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     """Ejecuta migraciones en modo async."""
-    connectable = create_async_engine(get_migration_url(), poolclass=pool.NullPool)
+    url = get_migration_url()
+    print("MIGRATION URL IS:", repr(url))
+    connectable = create_async_engine(
+        url,
+        poolclass=pool.NullPool,
+        connect_args={"prepared_statement_cache_size": 0}
+    )
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
